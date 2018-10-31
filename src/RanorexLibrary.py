@@ -12,9 +12,9 @@ class RanorexLibrary(object):
 
     *** Settings***
     Documentation           This is the file where the RanorexLibrary will be imported.
-    Library                 RanorexLibrary      path\\to\\Ranorex     path/to/Windows.Forms (optional)
+    Library                 RanorexLibrary      path\\to\\Ranorex
 
-    The RanorexLibrary takes two arguments:
+    The RanorexLibrary takes one argument:
     The path to Ranorex has to be given so the RobotLibrary knows where to import the Ranorex .dll files from. Normally this path looks something like this: C:\\Program Files (x86)\\Ranorex 8.3Beta. Please make sure to use double back slashes (because of Robot-reasons).
     """
 
