@@ -396,34 +396,174 @@ class RanorexLibrary(object):
         if varToVal == value:
             raise AssertionError("Elements are equal, although they shouldn't be. Expected and actual value: " + value)
 
-    def run_mobile_app(self, endpoint, appname):
-        Ranorex.Host.Local.RunMobileApp(endpoint, appname, True)
+    def run_mobile_app(self, endpoint, appname, resetState = "True"):
+        """ Starts an application on a mobile device.
+
+        :param endpoint: Name of the endpoint that the application should be started on. This endpoint has to be added using the Add Device keyword first, usually.
+        :param appname: This is the name of the app that has to be started. On Android, this name might look like this: com.dropbox.android
+        :param resetState: True if the app should be restarted, False if it should just be brought into the foreground if it is running already.
+
+        Example:
+        | `Run Mobile App` | Nexus 9 | com.dropbox.android | False |
+        """
+        self._log("Run mobile application " + appname + " on endpoint " + endpoint + ".")
+        if resetState == "":
+            resetState = "True"
+        Ranorex.Host.Local.RunMobileApp(endpoint, appname, strtobool(resetState))
 
     def add_device(self, name, platform, typeName, address): #this cost me a lot of sweat and tears
+        """ Adds a device endpoint for testing iOS and Android applications.
+
+        This keywords adds a device as an endpoint for test execution of mobile applications.
+
+        :param name: This is the name of the endpoint that has to be used in the Run Mobile App keyword afterwards.
+        :param platform: Has to be either Android or iOS depending on the device endpoint.
+        :param typeName: Has to be either WLAN or USB, depending on how the device is connected to the machine that runs Robot.
+        :param address: Has to be the IP address (if connected via WLAN) or the USB serial (if connected via USB). Both can be found easiest with using Ranorex Studio or Spy.
+
+        Example:
+        | `Add Device` | Galaxy S7 Test Device | Android | WLAN | 192.168.14.3 |
+        """
+        self._log("Add " + platform + " device " + name + " via " + typeName + " with address " + address + ".")
         platform = "Ranorex.Core.Remoting.RemotePlatform." + platform
         typeName = "Ranorex.Core.Remoting.RemoteConnectionType." + typeName
         exec("Ranorex.Core.Remoting.RemoteServiceLocator.Service.AddDevice(\"" + name + "\", " + platform + ", " + typeName + ", \"" + address + "\")")
 
-    def close_mobile_app(self, ranorexpath):
-        Ranorex.Host.Current.CloseApplication(ranorexpath)
+    def close_mobile_app(self, ranorexpath, gracePeriod = "0"):
+        """ Closes an application that contains a specified UI element.
+
+        This keyword looks for a UI element specified by a RanoreXPath and tries to close the parent process of this element.
+
+        :param ranorexpath: This path specifies an element within the application that should be closed.
+        :param gracePeriod: Milliseconds until the application is killed if it hasn't closed properly until then. If this value is 0, the app will never be killed.
+
+        :returns: True if the application has closed within the grace period, otherwise false.
+
+        Example:
+        | `Close Application` | /winapp[@packagename='Microsoft.WindowsCalculator'] |  |
+        | `Close Application` | /winapp[@packagename='Microsoft.WindowsCalculator']//button[@automationid='num1Button'] | 300 |
+        """
+        self._log("Closing application with element " + ranorexpath + " within " + gracePeriod + "ms.")
+        intGracePeriod = int(gracePeriod)
+        Ranorex.Host.Current.CloseApplication(ranorexpath, intGracePeriod)
     
-    def touch_element(self, ranorexpath):
-        Ranorex.Unknown(ranorexpath).Touch()
+    def touch(self, ranorexpath, location = "Center", duration = "Ranorex.Mouse.DefaultMoveTime"):
+        """ This keyword performs a touch on a mobile element.
 
-    def double_tap_element(self, ranorexpath):
-        Ranorex.Unknown(ranorexpath).DoubleTap()
+        In its core, this function is very similar to how clicks work in Ranorex.
 
-    def long_touch_element(self, ranorexpath):
-        Ranorex.Unknown(ranorexpath).LongTouch()
+        :param ranorexpath: RanoreXPath of the element that should get touched.
+        :param location: The location where the element should be touched. Possible values: Center, CenterLeft, CenterRight, LowerCenter, LowerRight, LowerLeft, UpperCenter, UpperLeft, UpperRight
+        :param duration: Duration of the touch in ms.
 
-    def touch_start_on_element(self, ranorexpath):
-        Ranorex.Unknown(ranorexpath).TouchStart(Ranorex.Location.Center)
+        Example:
+        | `Touch` | /mobileapp[@title='com.dropbox.android']//button[@accessiblename='Enter'] |  |  |
+        | `Touch` | /mobileapp[@title='com.dropbox.android']//button[@innertext='Cancel'] | UpperRight |  |
+        | `Touch` | /mobileapp[@title='com.dropbox.android']//button[@accessiblename='Enter'] | CenterLeft | 1000 |
+        """
+        self._log("Touch element " + ranorexpath + " at location " + location + " for " + duration + "ms.")
+        if location == "":
+            location = "Center"
+        if duration == "":
+            duration = "Ranorex.Mouse.DefaultMoveTime"
+        location = self._normalizeLocation(location)
+        exec("Ranorex.Unknown(ranorexpath).Touch(" + location + ", " + duration + ")")
 
-    def touch_move_to_element(self, ranorexpath):
-        Ranorex.Unknown(ranorexpath).TouchMove(Ranorex.Location.Center)
+    def double_tap(self, ranorexpath, location = "Center"):
+        """ This keyword performs a double tap on a mobile element.
 
-    def touch_end_on_element(self, ranorexpath):
-        Ranorex.Unknown(ranorexpath).TouchMove(Ranorex.Location.Center)
-        Ranorex.Unknown(ranorexpath).TouchEnd(Ranorex.Location.Center)
+        It is very similar to the double click action.
 
-    
+        :param ranorexpath: RanoreXPath of the element that should get double tapped.
+        :param location: The location where the element should be touched. Possible values: Center, CenterLeft, CenterRight, LowerCenter, LowerRight, LowerLeft, UpperCenter, UpperLeft, UpperRight
+
+        Example:
+        | `Double Tap` | /mobileapp[@title='com.dropbox.android']//button[@accessiblename='Enter'] |  |
+        | `Double Tap` | /mobileapp[@title='com.dropbox.android']//button[@accessiblename='Enter'] | CenterRight |
+        """
+        self._log("Double Tap element " + ranorexpath + " at location " + location + ".")
+        if location == "":
+            location = "Center"
+        location = self._normalizeLocation(location)
+        exec("Ranorex.Unknown(ranorexpath).DoubleTap(" + location + ")")
+
+    def long_touch(self, ranorexpath, location = "Center", duration = "Ranorex.Mouse.DefaultMoveTime"):
+        """ Performs a long touch on a mobile element.
+
+        :param ranorexpath: RanoreXPath of the element that should get long touched.
+        :param location: The location where the element should be touched. Possible values: Center, CenterLeft, CenterRight, LowerCenter, LowerRight, LowerLeft, UpperCenter, UpperLeft, UpperRight
+        :param duration: Duration of the long touch event in ms.
+
+        Example:
+        | `Long Touch` | /mobileapp[@title='com.dropbox.android']//button[@accessiblename='Enter'] |  |  |
+        | `Long Touch` | /mobileapp[@title='com.dropbox.android']//button[@accessiblename='Enter'] | LowerLeft |  |
+        | `Long Touch` | /mobileapp[@title='com.dropbox.android']//button[@accessiblename='Enter'] | UpperRight | 3000 |
+        """
+        self._log("Long Touching element " + ranorexpath + " at location " + location + " for " + duration + "ms.")
+        if location == "":
+            location = "Center"
+        if duration == "":
+            duration = "Ranorex.Mouse.DefaultMoveTime"
+        location = self._normalizeLocation(location)
+        exec("Ranorex.Unknown(ranorexpath).LongTouch(" + location + ", " + duration + ")")
+
+    def _moveTouchToElement(self, ranorexpath, location, duration):
+        exec("Ranorex.Unknown(ranorexpath).MoveTo(" + location + ", " + duration + ")")
+
+    def touch_start(self, ranorexpath, location = "Center"):
+        """ Starts a touch event on a mobile element.
+
+        :param ranorexpath: RanoreXPath of the element where the touch start event should be executed.
+        :param location: The location where the element should be touched. Possible values: Center, CenterLeft, CenterRight, LowerCenter, LowerRight, LowerLeft, UpperCenter, UpperLeft, UpperRight
+
+        Example:
+        | `Touch Start` | /mobileapp[@title='com.dropbox.android']//container/androidelement/container[@containertype='Frame']/androidelement/container[9]/text | LowerLeft |
+        """
+        self._log("Touch Start on element" + ranorexpath + " at location " + location + ".")
+        if location == "":
+            location = "Center"
+        location = self._normalizeLocation(location)
+        exec("Ranorex.Unknown(ranorexpath).TouchStart(" + location + ")")
+
+    def touch_move(self, ranorexpath, location = "Center", duration = "Ranorex.Mouse.DefaultMoveTime"):
+        """ Moves to a specific element.
+
+        Must be used after a touch start keyword and can be used to make complex gestures, like swiping.
+
+        :param ranorexpath: RanoreXPath of the element where the move action _ends_.
+        :param location: The location where the movement should end. Possible values: Center, CenterLeft, CenterRight, LowerCenter, LowerRight, LowerLeft, UpperCenter, UpperLeft, UpperRight
+        :param duration: Duration of the movement in ms.
+
+        Example:
+        | `Touch Move` | /mobileapp[@title='com.dropbox.android']//container/androidelement/container[@containertype='Frame']/androidelement/container[9]/text | Center | 1500 |
+        """
+        self._log("Touch Move to element "+ ranorexpath + " at location " + location + " for " + duration + "ms.")
+        if location == "":
+            location = "Center"
+        if duration == "":
+            duration = "Ranorex.Mouse.DefaultMoveTime"
+        location = self._normalizeLocation(location)
+        self._moveTouchToElement(ranorexpath, location, duration)
+
+    def touch_end(self, ranorexpath, location = "Center", duration = "Ranorex.Mouse.DefaultMoveTime"):
+        """ This keyword lets a touch action end.
+
+        It is normally preceded by a touch start or a touch start and several touch move events. It includes a move to the desired end location.
+
+        :param location: The location where the touch should end. Possible values: Center, CenterLeft, CenterRight, LowerCenter, LowerRight, LowerLeft, UpperCenter, UpperLeft, UpperRight
+        :param ranorexpath: RanoreXPath of the element on which the touch ends.
+        :param duration: Duration of the movement to the end location in ms.
+
+        Example:
+        | `Touch End` | /mobileapp[@title='com.dropbox.android']//container[@containertype='Linear']/container[@containertype='Frame']/container[@containertype='Frame']/androidelement[1]/container[@containertype='Frame']/androidelement/container[@containertype='Frame']/container[3]/text | CenterRight | 50 |
+        """
+        self._log("Touch End on element " + ranorexpath + " at location " + location + " for " + duration + "ms.")
+        if location == "":
+            location = "Center"
+        if duration == "":
+            duration = "Ranorex.Mouse.DefaultMoveTime"
+        location = self._normalizeLocation(location)
+        self._moveTouchToElement(ranorexpath, location, duration)
+        exec("Ranorex.Unknown(ranorexpath).TouchEnd(" + location + ")")
+        
+
