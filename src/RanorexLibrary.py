@@ -353,13 +353,14 @@ class RanorexLibrary(object):
 
         If you want to press keys without the necessity of a UI element, use the Key Shortcut keyword instead.
 
-                Each key is represented by a single character or an escape group. To specify a single keyboard character, use the character itself (e.g. use "aBc" to press the keys A, B+Shift, and C after another). Only the '{' character has a special meaning and needs to be escaped by preceding it with another '{' (specify "{{" to issue a '{' key press).
+        Each key is represented by a single character or an escape group. To specify a single keyboard character, use the character itself (e.g. use "aBc" to press the keys A, B+Shift, and C after another). Only the '{' character has a special meaning and needs to be escaped by preceding it with another '{' (specify "{{" to issue a '{' key press).
         Escape groups, signaled by braces "{}", may be used to produce a key action with any of the keys specified by the Keys enumeration (https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.keys?redirectedfrom=MSDN&view=netframework-4.7.2). "{Z}" means that the 'z' key should be pressed, and "{return}" or "{enter}" that the Return key is to be pressed.
 
         Additionally, in an escape group you can specify a modifier that determines whether the key should be hold down (e.g. {CONTROL down}), released (e.g. {shift up}), or pressed a number of times (e.g. {z 3}). In an escape group, key name and modifier must be separated by a single shift character.
 
         The keys A to Z set the key modifiers (ALT, CTRL, SHIFT) and in particular the shift key depending on their case, even if used in an escape group. If these keys should not modify the shift key state, wrap them into an escape group and add "key" to the character, e.g. "{Rkey}" to press the R key without changing the shift key state.
 
+        :param ranorexpath: RanoreXPath of the UI element that will receive the key sequence.
         :param sequence: Sequence that represents the key sequence to press.
 
         | `Key Sequence` | /form[@processname='iexplore' and @visible='True']/element[@accessiblename='Navigation Bar']//text[class='Edit'][1]  | www.ranorex.com |
@@ -423,6 +424,7 @@ class RanorexLibrary(object):
 
         Example:
         | `Add Device` | Galaxy S7 Test Device | Android | WLAN | 192.168.14.3 |
+        | `Add Device` | iPad 10 Test Device | iOS | USB | HT4AWJT01500 |
         """
         self._log("Add " + platform + " device " + name + " via " + typeName + " with address " + address + ".")
         platform = "Ranorex.Core.Remoting.RemotePlatform." + platform
