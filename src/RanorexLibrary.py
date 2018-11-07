@@ -567,5 +567,31 @@ class RanorexLibrary(object):
         location = self._normalizeLocation(location)
         self._moveTouchToElement(ranorexpath, location, duration)
         exec("Ranorex.Unknown(ranorexpath).TouchEnd(" + location + ")")
-        
 
+    def drag_and_drop(self, ranorexpath_src, ranorexpath_dest, location_src = "Center", location_dest = "Center", duration_src = "Ranorex.Mouse.DefaultMoveTime", duration_dest = "Ranorex.Mouse.DefaultMoveTime"):
+        """ Performs a drag-and-drop action.
+
+        This keyword is an action consisting of a mouse down, a mouse movement, and a mouse up. It is usually used to perform drag-and-drop actions, but also other actions (like selecting many cells in a table etc.) can be performed using this keyword.
+
+        :param ranorexpath_src: RanoreXPath of the source element.
+        :param ranorexpath_dest: RanoreXPath of the destination element.
+        :param location_src: Where on the source element the mouse down action should happen.
+        :param location_dest: Where on the destination element the mouse up action should happen.
+        :param duration_src: How long it takes the mouse cursor to go to the surce element.
+        :param duration_dest: How long it takes the mouse cursor to move to the destination element.
+
+        Example:
+        | `Drag and Drop` | form[@title='Desktop']/element[@class='ShellTabWindowClass']//element[@instance='1']/container[@caption='ShellView']/?/?/list/listitem[@automationid='0'] | /form[@title='Desktop']/element[@class='ShellTabWindowClass']//element[@instance='1']/container[@caption='ShellView']/?/?/list/listitem[@automationid='4'] |  |  |  |  |
+        | `Drag and Drop` | form[@title='Desktop']/element[@class='ShellTabWindowClass']//element[@instance='1']/container[@caption='ShellView']/?/?/list/listitem[@automationid='0'] | /form[@title='Desktop']/element[@class='ShellTabWindowClass']//element[@instance='1']/container[@caption='ShellView']/?/?/list/listitem[@automationid='4'] | CenterLeft | UpperRight | 300 | 1500 |
+        """
+        self._log("Drag and drop from element " +  ranorexpath_src + " at location " + location_src + " to element " + ranorexpath_dest + " at location " + location_dest + ", taking " + duration_dest + "ms.")
+        if location_src == "":
+            location_src = "Center"
+        if location_dest == "":
+            location_dest = "Center"
+        if duration_src == "":
+            duration_src = "Ranorex.Mouse.DefaultMoveTime"
+        if duration_dest == "":
+            duration_dest = "Ranorex.Mouse.DefaultMoveTime"
+        self.mouse_down(ranorexpath_src, location_src, "Left", duration_src)
+        self.mouse_up(ranorexpath_dest, "Left", location_dest, duration_dest)
