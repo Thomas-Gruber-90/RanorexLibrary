@@ -595,3 +595,9 @@ class RanorexLibrary(object):
             duration_dest = "Ranorex.Mouse.DefaultMoveTime"
         self.mouse_down(ranorexpath_src, location_src, "Left", duration_src)
         self.mouse_up(ranorexpath_dest, "Left", location_dest, duration_dest)
+
+    def save_screenshot(self, ranorexpath, name = "", path = ""):
+        self._log("Capturing a screenshot of element " + ranorexpath + " and saving it to " + path + ".")
+        image = Ranorex.Imaging.CaptureImageAuto(ranorexpath)
+        pathName = path + "\\" + name
+        image.Save(pathName, System.Drawing.Imaging.ImageFormat.Png)

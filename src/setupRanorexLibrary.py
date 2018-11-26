@@ -3,6 +3,7 @@ import clr
 
 def importDlls(pathToRanorex):
     clr.AddReference('System.Windows.Forms')
+    clr.AddReference('System.Drawing')
 
     clr.AddReferenceToFileAndPath(pathToRanorex + "\\Ranorex.Bootstrapper.dll")
     clr.AddReferenceToFileAndPath(pathToRanorex + "\\Ranorex.Contracts.dll")
