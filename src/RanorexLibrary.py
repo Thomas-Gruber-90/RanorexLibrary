@@ -628,3 +628,10 @@ class RanorexLibrary(object):
         image.Save(imgName, System.Drawing.Imaging.ImageFormat.Png)
         htmlString = '<img src = "' + imgName + '">'
         logger.write(htmlString, self._logLevel, html = True)
+
+    def invoke_action(self, ranorexpath, funcName, arguments = ""):
+        self._log("Invoking action " + str(funcName) + " on element " + ranorexpath +  " with these arguments: " + arguments)
+        if arguments == "":
+            Ranorex.Unknown(ranorexpath).Element.InvokeActionWithText(funcName)
+        else:
+            Ranorex.Unknown(ranorexpath).Element.InvokeActionWithText(funcName, arguments)
