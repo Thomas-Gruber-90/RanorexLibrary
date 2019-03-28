@@ -26,7 +26,7 @@ class RanorexLibrary(object):
 
     _logLevel = "INFO"
 
-    def __init__(self, pathToRanorex):
+    def __init__(self, pathToRanorex = "C:\\Program Files (x86)\\Ranorex\\Studio\\Bin"):
         import setupRanorexLibrary
         setupRanorexLibrary.importDlls(pathToRanorex)
 
