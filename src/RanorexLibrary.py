@@ -313,7 +313,7 @@ class RanorexLibrary(object):
         | `Wait For` | /winapp[@packagename='Microsoft.WindowsCalculator']//button[@automationid='num5Button'] |  |
         | `Wait For` | /winapp[@packagename='Microsoft.WindowsCalculator']//button[@automationid='num5Button'] | 5000 |
         """
-        self._log("Wait " + duration + "ms for element " + ranorexpath + " to be found.")
+        self._log("Wait " + str(duration) + "ms for element " + ranorexpath + " to be found.")
         intRanorexpath = Ranorex.Core.RxPath(ranorexpath)
         intDuration = Ranorex.Duration(int(duration))
         newElement = None
